@@ -1,0 +1,3 @@
+[submodule "backtest-machine"]
+	path = backtest-machine
+	url = git@github.com:dz333n/backtest-machine.git
