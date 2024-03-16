@@ -34,7 +34,7 @@ async function handleAdapter(adapter: BaseAdapter, path: string): Promise<Result
     const result = await handleAdapterSymbol(adapter, path, symbol);
 
     if (result) {
-      results.push();
+      results.push(result);
     }
   }
 
