@@ -1,18 +1,19 @@
 import { BaseAdapter, getRegisteredAdapters } from "backtest-machine";
+import { symbolsWhitelist } from "./constants";
 import optimizeAsset from "./optimize-asset";
 import Result from "./result";
 
-const symbolsWhitelist = [
-  'BTCUSDT_4h_futures',
-  'ETHUSDT_4h_futures',
-  'BNBUSDT_4h_futures',
-];
-
 function isSymbolWhitelisted(symbol: string): boolean {
-  return symbolsWhitelist.some((whitelistedSymbol) => symbol.includes(whitelistedSymbol));
+  return symbolsWhitelist.some((whitelistedSymbol) =>
+    symbol.includes(whitelistedSymbol)
+  );
 }
 
-async function handleAdapterSymbol(adapter: BaseAdapter, path: string, symbol: string): Promise<Result | undefined> {
+async function handleAdapterSymbol(
+  adapter: BaseAdapter,
+  path: string,
+  symbol: string
+): Promise<Result | undefined> {
   if (!isSymbolWhitelisted(symbol)) {
     console.log(`Skipping ${symbol} because it's not in the whitelist`);
     return;
@@ -24,7 +25,10 @@ async function handleAdapterSymbol(adapter: BaseAdapter, path: string, symbol: s
   return await optimizeAsset(asset);
 }
 
-async function handleAdapter(adapter: BaseAdapter, path: string): Promise<Result[]> {
+async function handleAdapter(
+  adapter: BaseAdapter,
+  path: string
+): Promise<Result[]> {
   console.log(`Loading symbols for adapter ${adapter.id}`);
 
   const symbols = await adapter.loadAssetSymbols(path);

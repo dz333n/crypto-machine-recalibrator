@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec } from "child_process";
 
 export default async function redownloadBinanceAssets(path: string) {
   const command = `python ${path}/binance-downloader.py 4h`;
