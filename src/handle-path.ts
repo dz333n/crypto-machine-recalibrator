@@ -2,10 +2,11 @@ import { BaseAdapter, getRegisteredAdapters } from "backtest-machine";
 import { symbolsWhitelist } from "./constants";
 import optimizeAsset from "./optimize-asset";
 import Result from "./result";
+import WhitelistedSymbol from "./whitelisted-symbol";
 
-function isSymbolWhitelisted(symbol: string): boolean {
-  return symbolsWhitelist.some((whitelistedSymbol) =>
-    symbol.includes(whitelistedSymbol)
+function getWhitelistedSymbol(symbol: string): WhitelistedSymbol | undefined {
+  return symbolsWhitelist.find((whitelistedSymbol) =>
+    symbol.includes(whitelistedSymbol.sourceName)
   );
 }
 
@@ -14,7 +15,9 @@ async function handleAdapterSymbol(
   path: string,
   symbol: string
 ): Promise<Result | undefined> {
-  if (!isSymbolWhitelisted(symbol)) {
+  const whitelistedSymbol = getWhitelistedSymbol(symbol);
+
+  if (!whitelistedSymbol) {
     console.log(`Skipping ${symbol} because it's not in the whitelist`);
     return;
   }
@@ -22,7 +25,7 @@ async function handleAdapterSymbol(
   console.log(`Loading asset ${symbol} for adapter ${adapter.id}`);
   const asset = await adapter.loadSymbol(path, symbol);
 
-  return await optimizeAsset(asset);
+  return await optimizeAsset(whitelistedSymbol, asset);
 }
 
 async function handleAdapter(

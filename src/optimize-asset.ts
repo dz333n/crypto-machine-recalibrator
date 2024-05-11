@@ -1,7 +1,11 @@
 import { Asset, fetchJob, optimizeStrategy } from "backtest-machine";
 import Result from "./result";
+import WhitelistedSymbol from "./whitelisted-symbol";
 
-export default async function optimizeAsset(asset: Asset): Promise<Result> {
+export default async function optimizeAsset(
+  whitelistedSymbol: WhitelistedSymbol,
+  asset: Asset
+): Promise<Result> {
   console.log(`Optimizing asset ${asset.symbol}`);
 
   let job = await optimizeStrategy({
@@ -33,8 +37,9 @@ export default async function optimizeAsset(asset: Asset): Promise<Result> {
   console.log(`Optimization finished for asset ${asset.symbol}`);
 
   return {
-    symbol: asset.symbol,
+    whitelistedSymbol,
     roi: job.results[asset.symbol][0].roi,
     params: job.results[asset.symbol][0].params,
+    calibratedAt: new Date(),
   };
 }
