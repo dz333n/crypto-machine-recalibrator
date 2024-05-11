@@ -6,4 +6,6 @@ export default interface Result {
   roi: number;
   params: InputParam[];
   calibratedAt: Date;
+  drawdown: number;
+  positionsCount: number;
 }

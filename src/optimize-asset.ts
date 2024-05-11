@@ -38,8 +38,7 @@ export default async function optimizeAsset(
 
   return {
     whitelistedSymbol,
-    roi: job.results[asset.symbol][0].roi,
-    params: job.results[asset.symbol][0].params,
     calibratedAt: new Date(),
+    ...job.results[asset.symbol][0],
   };
 }
