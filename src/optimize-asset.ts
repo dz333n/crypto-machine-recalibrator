@@ -1,6 +1,15 @@
 import { Asset, fetchJob, optimizeStrategy } from "backtest-machine";
+import { cursorTo, moveCursor } from "readline";
+import { formatDuration } from "./format-duration";
 import Result from "./result";
 import WhitelistedSymbol from "./whitelisted-symbol";
+
+function getTotalMemoryUsageInGB() {
+  const memoryUsage = process.memoryUsage();
+  const rssInBytes = memoryUsage.rss;
+  const rssInGB = rssInBytes / 1024 ** 3;
+  return rssInGB.toFixed(2) + " GB";
+}
 
 export default async function optimizeAsset(
   whitelistedSymbol: WhitelistedSymbol,
@@ -16,6 +25,8 @@ export default async function optimizeAsset(
     strategyName: "sma",
   });
 
+  let doNotMoveCursor = true;
+
   while (job.status === "running") {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     job = await fetchJob(job.id);
@@ -26,12 +37,32 @@ export default async function optimizeAsset(
       (job.processedCombinations / job.combinationsCount) *
       100
     ).toFixed(1);
+    const bestParams = symbolResults[0]?.params || [];
+    const bestParamsIndexed = bestParams.reduce((acc, param) => {
+      acc[param.name] = param.value;
+      return acc;
+    }, {} as Record<string, string>);
 
-    console.log(
-      `Optimizing asset ${asset.symbol}\tROI: ${roi.toFixed(
-        1
-      )}%\tProgress: ${progress}%`
-    );
+    const logObject = {
+      "Optimizing asset": asset.symbol,
+      ROI: roi.toFixed(1) + "%",
+      Progress: progress + "%",
+      Duration: formatDuration(job.startDate, new Date()),
+      "Processed combinations": job.processedCombinations,
+      "Total combinations": job.combinationsCount,
+      "Memory usage": getTotalMemoryUsageInGB(),
+      ...bestParamsIndexed,
+    };
+
+    if (!doNotMoveCursor) {
+      const lines = Object.keys(logObject).length + 4;
+      cursorTo(process.stdout, 0);
+      moveCursor(process.stdout, 0, -lines);
+    } else {
+      doNotMoveCursor = false;
+    }
+
+    console.table(logObject);
   }
 
   console.log(`Optimization finished for asset ${asset.symbol}`);
