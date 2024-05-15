@@ -42,12 +42,21 @@ export default async function optimizeAsset(
       acc[param.name] = param.value;
       return acc;
     }, {} as Record<string, string>);
+    const elapsedTime = (new Date().getTime() - job.startDate.getTime()) / 1000;
+    const estimatedTotalTime = elapsedTime / (parseFloat(progress) / 100);
+    const estimatedRemainingTimeInSeconds = estimatedTotalTime - elapsedTime;
+
+    const estimatedRemainingTime = formatDuration(
+      new Date(0),
+      new Date(estimatedRemainingTimeInSeconds * 1000)
+    );
 
     const logObject = {
       "Optimizing asset": asset.symbol,
       ROI: roi.toFixed(1) + "%",
       Progress: progress + "%",
       Duration: formatDuration(job.startDate, new Date()),
+      "Estimated time to finish": estimatedRemainingTime,
       "Processed combinations": job.processedCombinations,
       "Total combinations": job.combinationsCount,
       "Memory usage": getTotalMemoryUsageInGB(),
