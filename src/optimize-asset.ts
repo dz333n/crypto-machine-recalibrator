@@ -63,13 +63,13 @@ export default async function optimizeAsset(
       ...bestParamsIndexed,
     };
 
-    if (!doNotMoveCursor) {
-      const lines = Object.keys(logObject).length + 4;
-      cursorTo(process.stdout, 0);
-      moveCursor(process.stdout, 0, -lines);
-    } else {
-      doNotMoveCursor = false;
-    }
+    // if (!doNotMoveCursor) {
+    //   const lines = Object.keys(logObject).length + 4;
+    //   cursorTo(process.stdout, 0);
+    //   moveCursor(process.stdout, 0, -lines);
+    // } else {
+    //   doNotMoveCursor = false;
+    // }
 
     console.table(logObject);
   }
