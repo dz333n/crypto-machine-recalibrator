@@ -1,24 +1,19 @@
-import { exec } from "child_process";
+import { symbolsWhitelist } from "./constants";
+import executeSystemCommand from "./execute-system-command";
 
 export default async function redownloadBinanceAssets(path: string) {
-  const command = `python ${path}/binance-downloader.py 4h`;
+  const timeframes = symbolsWhitelist.map(
+    (symbol) => symbol.injectTimeframeParam
+  );
+  const uniqueTimeframes = [...new Set(timeframes)];
 
-  console.log(`Executing command: ${command}`);
+  const commands = uniqueTimeframes.map(
+    (timeframe) => `python ${path}/binance-downloader.py ${timeframe}`
+  );
 
-  return new Promise<void>((resolve, reject) => {
-    exec(command, { cwd: path }, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing command: ${error.message}`);
-        reject(error.message);
-      }
+  const promises = commands.map((command) =>
+    executeSystemCommand({ cwd: path, command })
+  );
 
-      if (stderr) {
-        console.error(`Command execution returned an error: ${stderr}`);
-        reject(stderr);
-      }
-
-      console.log(`Command executed successfully: ${stdout}`);
-      resolve();
-    });
-  });
+  await Promise.all(promises);
 }
